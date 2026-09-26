@@ -1,0 +1,8 @@
+python-sat
+ortools
+gurobipy
+cplex
+docplex
+wandb
+psutil
+pandas

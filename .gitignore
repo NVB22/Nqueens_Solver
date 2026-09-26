@@ -1,0 +1,12 @@
+# Môi trường ảo Python
+venv/
+
+# Cache hệ thống
+__pycache__/
+*.pyc
+
+# Thư mục log của Weights & Biases
+wandb/
+
+# File dữ liệu cục bộ
+*.csv
