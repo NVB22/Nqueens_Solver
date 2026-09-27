@@ -1,0 +1,30 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src.solvers.sat_solvers import run_sat
+from src.encodings.binomial import generate_binomial_clauses
+
+
+SOLVER = "glucose3"
+TEST_SIZES = [4, 8]
+
+def helper_run_encoding(encoding_func):
+    """Hàm helper thuần túy kiểm tra logic cho một thuật toán bất kỳ"""
+    for n in TEST_SIZES:
+        clauses = encoding_func(n)
+        res = run_sat(clauses, SOLVER)
+        
+        assert res["status"] == "Optimal", f"Lỗi ở thuật toán {encoding_func.__name__} tại N={n}"
+        assert res["vars"] > 0, "Số biến phải lớn hơn 0"
+        assert res["clauses"] > 0, "Số mệnh đề phải lớn hơn 0"
+
+def test_binomial():
+    helper_run_encoding(generate_binomial_clauses)
+
+
+if __name__ == '__main__':
+    # Chạy manual nếu không dùng công cụ test runner
+    print("Đang chạy kiểm thử thuật toán")
+    test_binomial()
