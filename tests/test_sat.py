@@ -5,6 +5,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.solvers.sat_solvers import run_sat
 from src.encodings.binomial import generate_binomial_clauses
+from src.encodings.binary import generate_binary_clauses
+from src.encodings.sequential_counter import generate_sequential_clauses
 
 
 SOLVER = "glucose3"
@@ -23,8 +25,16 @@ def helper_run_encoding(encoding_func):
 def test_binomial():
     helper_run_encoding(generate_binomial_clauses)
 
+def test_binary():
+    helper_run_encoding(generate_binary_clauses)
+
+def test_sequential():
+    helper_run_encoding(generate_sequential_clauses)
+
 
 if __name__ == '__main__':
     # Chạy manual nếu không dùng công cụ test runner
     print("Đang chạy kiểm thử thuật toán")
     test_binomial()
+    test_binary()
+    test_sequential()
