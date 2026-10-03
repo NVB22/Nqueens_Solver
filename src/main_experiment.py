@@ -16,7 +16,7 @@ from src.solvers.sat_solvers import run_sat
 from src.solvers.cp_solvers import run_cp_sat, run_cp_cplex
 from src.solvers.ilp_solvers import run_gurobi, run_cplex_mip
 
-N_SIZES = [4, 8, 12, 16, 25, 36] 
+N_SIZES = [2,4, 8, 12, 16, 25, 36] 
 SAT_SOLVERS = ['glucose3'] 
 
 ENCODINGS = {
@@ -82,30 +82,30 @@ def main():
                     "Status": res['status']
                 })
 
-    # print("\n=== CHẠY NHÓM CP VÀ ILP ĐỐI SÁNH ===")
-    # advanced_solvers = {
-    #     "CP-SAT": run_cp_sat,
-    #     "Cplex CP": run_cp_cplex,
-    #     "Gurobi ILP": run_gurobi,
-    #     "Cplex MIP": run_cplex_mip
-    # }
+    print("\n=== CHẠY NHÓM CP VÀ ILP ĐỐI SÁNH ===")
+    advanced_solvers = {
+        "CP-SAT": run_cp_sat,
+        "Cplex CP": run_cp_cplex,
+        # "Gurobi ILP": run_gurobi,
+        # "Cplex MIP": run_cplex_mip
+    }
     
-    # for adv_name, adv_func in advanced_solvers.items():
-    #     print(f"\n>> Đang chạy: {adv_name}")
-    #     for n in N_SIZES:
-    #         res = adv_func(n)
-    #         print(f"N={n:<3} | {res['status']:<18} | Time: {res['time']:.4f}s")
-    #         log_result({
-    #             "Category": "Advanced",
-    #             "Algorithm": "Native_Model",
-    #             "Solver": adv_name,
-    #             "N": n,
-    #             "Time": res['time'],
-    #             "Variables": 0, 
-    #             "Clauses": 0,
-    #             "RAM_MB": 0,
-    #             "Status": res['status']
-    #         })
+    for adv_name, adv_func in advanced_solvers.items():
+        print(f"\n>> Đang chạy: {adv_name}")
+        for n in N_SIZES:
+            res = adv_func(n)
+            print(f"N={n:<3} | {res['status']:<18} | Time: {res['time']:.4f}s")
+            log_result({
+                "Category": "Advanced",
+                "Algorithm": "Native_Model",
+                "Solver": adv_name,
+                "N": n,
+                "Time": res['time'],
+                "Variables": 0, 
+                "Clauses": 0,
+                "RAM_MB": 0,
+                "Status": res['status']
+            })
             
     finish_wandb()
 
