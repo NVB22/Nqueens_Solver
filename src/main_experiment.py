@@ -16,7 +16,7 @@ from src.solvers.sat_solvers import run_sat
 from src.solvers.cp_solvers import run_cp_sat, run_cp_cplex
 from src.solvers.ilp_solvers import run_gurobi, run_cplex_mip
 
-N_SIZES = [2,4, 8, 12, 16, 25, 36] 
+N_SIZES = [2,4, 8, 12, 16, 25, 36 , 64] 
 SAT_SOLVERS = ['glucose3'] 
 
 ENCODINGS = {
@@ -86,8 +86,8 @@ def main():
     advanced_solvers = {
         "CP-SAT": run_cp_sat,
         "Cplex CP": run_cp_cplex,
-        # "Gurobi ILP": run_gurobi,
-        # "Cplex MIP": run_cplex_mip
+        "Gurobi ILP": run_gurobi,
+        "Cplex MIP": run_cplex_mip
     }
     
     for adv_name, adv_func in advanced_solvers.items():
