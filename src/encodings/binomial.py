@@ -1,12 +1,9 @@
 from itertools import combinations
-from .base_encoder import yield_all_lines, get_var_id
+from .base_encoder import yield_all_lines, yield_alo
 
-def generate_binomial_clauses(n: int):
-    # Ràng buộc ALO (Ít nhất 1 hậu mỗi hàng)
-    for i in range(n):
-        yield [get_var_id(n, i, j) for j in range(n)]
-        
-    # Ràng buộc AMO (Không quá 1 hậu) cho tất cả các đường
+
+def generate_binomial_clauses(n: int, column_alo: bool = True):
+    yield from yield_alo(n, column_alo)
     for line in yield_all_lines(n):
-        for v1, v2 in combinations(line, 2):
-            yield [-v1, -v2]
+        for a, b in combinations(line, 2):
+            yield [-a, -b]

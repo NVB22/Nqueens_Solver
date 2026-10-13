@@ -1,25 +1,17 @@
-import math
-from .base_encoder import yield_all_lines, get_var_id
+from .base_encoder import yield_all_lines, yield_alo
 
-def generate_binary_clauses(n: int):
-    aux_state = [n * n + 1]
-    
-    for i in range(n):
-        yield [get_var_id(n, i, j) for j in range(n)]
-        
+
+def generate_binary_clauses(n: int, column_alo: bool = True):
+    yield from yield_alo(n, column_alo)
+    next_aux = n * n + 1
     for line in yield_all_lines(n):
-        k = len(line)
-        if k <= 1:
+        if len(line) < 2:
             continue
-            
-        num_bits = math.ceil(math.log2(k))
-        aux_vars = [aux_state[0] + i for i in range(num_bits)]
-        aux_state[0] += num_bits
-        
-        for i, var in enumerate(line):
-            for j in range(num_bits):
-                # Kiểm tra bit thứ j của số i
-                if (i & (1 << j)) != 0:
-                    yield [-var, aux_vars[j]]
-                else:
-                    yield [-var, -aux_vars[j]]
+        bits = (len(line) - 1).bit_length()
+        signed_bits = [(1 << j, next_aux + j, -next_aux - j) for j in range(bits)]
+        next_aux += bits
+        for index, var in enumerate(line):
+            neg_var = -var
+            for mask, pos, neg in signed_bits:
+                yield [neg_var, pos if index & mask else neg]
+    
