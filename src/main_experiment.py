@@ -1,113 +1,436 @@
+import argparse
+import hashlib
+import json
+import math
+import multiprocessing
+import platform
+import random
 import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
 
-import time
-from src.utils.resource_monitor import get_current_ram_mb
-from src.utils.wandb_logger import init_wandb, log_result, finish_wandb
+from src.encodings import ENCODINGS
+from src.encodings.base_encoder import estimate_cnf
+from src.solvers.common import package_version
+from src.utils.experiment_runner import SOLVERS, run_job
+from src.utils.wandb_logger import (
+    ResultLogger,
+    init_wandb,
+    finish_wandb,
+)
+from src.utils.summary import write_summary
 
-from src.encodings.binomial import generate_binomial_clauses
-from src.encodings.binary import generate_binary_clauses
-from src.encodings.commander import generate_commander_clauses
-from src.encodings.product import generate_product_clauses
-from src.encodings.sequential_counter import generate_sequential_clauses
 
-from src.solvers.sat_solvers import run_sat
-from src.solvers.cp_solvers import run_cp_sat, run_cp_cplex
-from src.solvers.ilp_solvers import run_gurobi, run_cplex_mip
+# main_experiment.py nằm trong src:
+# parents[0] là src, parents[1] là thư mục gốc dự án.
+ROOT = Path(__file__).resolve().parents[1]
 
-N_SIZES = [2,4, 8, 12, 16, 25, 36 , 64] 
-SAT_SOLVERS = ['glucose3'] 
+LARGE_SIZES = [
+    4, 8, 9, 16, 25, 27, 36, 49, 64,
+    81, 100, 125, 216, 343, 512, 729, 1000, 1331,
+]
 
-ENCODINGS = {
-    "Binomial": generate_binomial_clauses,
-    "Binary": generate_binary_clauses,
-    "Commander": generate_commander_clauses,
-    "Product": generate_product_clauses,
-    "Sequential": generate_sequential_clauses
-}
 
-def draw_board(model, n):
-    """Hàm vẽ bàn cờ từ mảng nghiệm của SAT Solver"""
-    if not model:
-        return
-    print(f"\n--- Bàn cờ minh họa (N={n}) ---")
-    board = [['.' for _ in range(n)] for _ in range(n)]
-    
-    for val in model:
-        # Chỉ quét các biến mang giá trị dương (đặt Hậu) và là biến trên bàn cờ (<= n*n)
-        if val > 0 and val <= n * n:
-            idx = val - 1
-            r, c = idx // n, idx % n
-            board[r][c] = 'Q'
-            
-    for row in board:
-        print(" " + "  ".join(row))
-    print("-" * 30)
+def positive_int(value):
+    result = int(value)
+    if result < 1:
+        raise argparse.ArgumentTypeError("must be positive")
+    return result
 
-def main():
-    init_wandb()
-    print("=== BẮT ĐẦU CHẠY THỰC NGHIỆM ĐÁNH GIÁ N-QUEENS ===")
-    
-    for enc_name, enc_func in ENCODINGS.items():
-        for solver_name in SAT_SOLVERS:
-            print(f"\n>> Đang chạy SAT | Mã hóa: {enc_name} | Bộ giải: {solver_name.upper()}")
-            
-            for n in N_SIZES:
-                ram_before = get_current_ram_mb()
-                clauses_gen = enc_func(n)
-                res = run_sat(clauses_gen, solver_name)
-                
-                ram_after = get_current_ram_mb()
-                ram_used = max(0, ram_after - ram_before)
-                
-                vars_count = res.get('vars', 0)
-                clauses_count = res.get('clauses', 0)
-                
-                print(f"N={n:<3} | {res['status']:<10} | Time: {res['time']:.4f}s | Vars: {vars_count:<7} | Clauses: {clauses_count:<8} | RAM: {ram_used:.2f}MB")
-                
-                # Chỉ in bàn cờ trực quan cho N=4 hoặc N=8 để tránh làm rối màn hình
-                if res['status'] == "Optimal" and n in [4, 8]:
-                    draw_board(res['model'], n)
-                
-                log_result({
-                    "Category": "SAT",
-                    "Algorithm": enc_name,
-                    "Solver": solver_name,
-                    "N": n,
-                    "Time": res['time'],
-                    "Variables": vars_count,
-                    "Clauses": clauses_count,
-                    "RAM_MB": ram_used,
-                    "Status": res['status']
-                })
 
-    print("\n=== CHẠY NHÓM CP VÀ ILP ĐỐI SÁNH ===")
-    advanced_solvers = {
-        "CP-SAT": run_cp_sat,
-        "Cplex CP": run_cp_cplex,
-        "Gurobi ILP": run_gurobi,
-        "Cplex MIP": run_cplex_mip
+def positive_float(value):
+    result = float(value)
+    if not math.isfinite(result) or result <= 0:
+        raise argparse.ArgumentTypeError(
+            "must be finite and positive"
+        )
+    return result
+
+
+def parse_args(argv=None):
+    p = argparse.ArgumentParser(description=__doc__)
+
+    p.add_argument("--sizes", nargs="+", type=positive_int)
+    p.add_argument(
+        "--large",
+        action="store_true",
+        help="Use the reference sizes up to 1331",
+    )
+    p.add_argument(
+        "--solvers",
+        nargs="+",
+        choices=SOLVERS,
+        default=list(SOLVERS),
+    )
+    p.add_argument(
+        "--encodings",
+        nargs="+",
+        choices=ENCODINGS,
+        default=list(ENCODINGS),
+    )
+    p.add_argument("--sat-solver", default="glucose3")
+    p.add_argument("--num-runs", type=positive_int, default=3)
+    p.add_argument("--timeout", type=positive_float, default=100.0)
+    p.add_argument(
+        "--memory-mib",
+        type=positive_float,
+        default=6144.0,
+    )
+    p.add_argument("--threads", type=positive_int, default=1)
+    p.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Native solver seed; Glucose seed is not overridden",
+    )
+    p.add_argument("--order-seed", type=int, default=2026)
+    p.add_argument(
+        "--column-alo",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+    )
+    p.add_argument("--batch-size", type=positive_int, default=8192)
+    p.add_argument("--sample-ms", type=positive_float, default=20.0)
+    p.add_argument(
+        "--max-clauses",
+        type=int,
+        default=0,
+        help="Preflight cap; 0 disables it",
+    )
+    p.add_argument(
+        "--cpoptimizer",
+        help="Full path to cpoptimizer.exe, or set CPO_EXECUTABLE",
+    )
+    p.add_argument("--output", type=Path)
+    p.add_argument("--resume", action="store_true")
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the plan/counts without running solvers",
+    )
+    p.add_argument("--wandb-offline", action="store_true")
+
+    a = p.parse_args(argv)
+
+    if not 0 <= a.seed <= 2_147_483_647 or a.max_clauses < 0:
+        p.error(
+            "seed must be in [0,2147483647]; "
+            "max-clauses must be nonnegative"
+        )
+
+    if a.resume and not a.output:
+        p.error("--resume requires --output")
+
+    if a.sizes and a.large:
+        p.error("Choose --sizes or --large")
+
+    a.sizes = sorted(
+        set(
+            a.sizes
+            or (
+                LARGE_SIZES
+                if a.large
+                else [2, 4, 8, 16, 32, 64]
+            )
+        )
+    )
+    a.solvers = list(dict.fromkeys(a.solvers))
+    a.encodings = list(dict.fromkeys(a.encodings))
+
+    return a
+
+
+def source_hash():
+    """Băm đường dẫn và nội dung mọi file Python trong src."""
+    digest = hashlib.sha256()
+
+    # Danh sách này đã bao gồm src/main_experiment.py.
+    source_files = sorted((ROOT / "src").rglob("*.py"))
+
+    for path in source_files:
+        digest.update(str(path.relative_to(ROOT)).encode())
+        digest.update(path.read_bytes())
+
+    return digest.hexdigest()
+
+
+def environment():
+    import psutil
+
+    packages = {
+        name: package_version(name)
+        for name in [
+            "python-sat",
+            "psutil",
+            "ortools",
+            "docplex",
+            "cplex",
+            "gurobipy",
+        ]
     }
-    
-    for adv_name, adv_func in advanced_solvers.items():
-        print(f"\n>> Đang chạy: {adv_name}")
-        for n in N_SIZES:
-            res = adv_func(n)
-            print(f"N={n:<3} | {res['status']:<18} | Time: {res['time']:.4f}s")
-            log_result({
-                "Category": "Advanced",
-                "Algorithm": "Native_Model",
-                "Solver": adv_name,
-                "N": n,
-                "Time": res['time'],
-                "Variables": 0, 
-                "Clauses": 0,
-                "RAM_MB": 0,
-                "Status": res['status']
-            })
-            
-    finish_wandb()
+
+    return {
+        "python": platform.python_version(),
+        "executable": sys.executable,
+        "os": platform.platform(),
+        "processor": platform.processor(),
+        "logical_cpus": psutil.cpu_count(),
+        "physical_cpus": psutil.cpu_count(logical=False),
+        "ram_mib": psutil.virtual_memory().total / 1024**2,
+        "packages": packages,
+    }
+
+
+def main(argv=None):
+    args = parse_args(argv)
+
+    config = {
+        k: v
+        for k, v in vars(args).items()
+        if k not in {
+            "output",
+            "resume",
+            "dry_run",
+            "wandb_offline",
+        }
+    }
+
+    code_hash = source_hash()
+
+    jobs = []
+    for solver in args.solvers:
+        encodings = args.encodings if solver == "sat" else [None]
+
+        for encoding in encodings:
+            for n in args.sizes:
+                for repetition in range(1, args.num_runs + 1):
+                    jobs.append(
+                        (solver, encoding, n, repetition)
+                    )
+
+    random.Random(args.order_seed).shuffle(jobs)
+
+    if args.dry_run:
+        print(
+            f"{len(jobs)} jobs; "
+            f"timeout={args.timeout}s; "
+            f"RAM={args.memory_mib} MiB; "
+            f"column_alo={args.column_alo}"
+        )
+
+        for n in args.sizes:
+            encodings = (
+                args.encodings if "sat" in args.solvers else []
+            )
+
+            for encoding in encodings:
+                counts = estimate_cnf(
+                    n,
+                    encoding,
+                    args.column_alo,
+                )
+                skip = (
+                    args.max_clauses
+                    and counts["cnf_clauses"] > args.max_clauses
+                )
+
+                print(
+                    f"N={n:<5} {encoding:<11} "
+                    f"vars={counts['primary_vars'] + counts['aux_vars']:,} "
+                    f"clauses={counts['cnf_clauses']:,} "
+                    f"{'SKIP: clause cap' if skip else ''}"
+                )
+
+        return 0
+
+    env = environment()
+
+    fingerprint = {
+        "config": config,
+        "code_hash": code_hash,
+        "python": env["python"],
+        "packages": env["packages"],
+        "os": env["os"],
+    }
+    config_hash = hashlib.sha256(
+        json.dumps(fingerprint, sort_keys=True).encode()
+    ).hexdigest()
+
+    new_id = (
+        datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        + "_"
+        + uuid.uuid4().hex[:8]
+    )
+
+    # Mặc định lưu tại thư mục results ở gốc dự án.
+    output = (
+        args.output or ROOT / "results" / new_id
+    ).resolve()
+    manifest_path = output / "manifest.json"
+
+    if args.resume:
+        if not manifest_path.exists():
+            raise ValueError(
+                "Cannot resume: manifest.json does not exist"
+            )
+
+        manifest = json.loads(
+            manifest_path.read_text(encoding="utf-8")
+        )
+
+        if manifest["config_hash"] != config_hash:
+            raise ValueError(
+                "Resume refused: code, options, OS or package "
+                "versions changed. Use a new output directory."
+            )
+    else:
+        if output.exists() and any(output.iterdir()):
+            raise FileExistsError(
+                "Output directory is not empty; "
+                "use --resume or a new directory"
+            )
+
+        output.mkdir(parents=True, exist_ok=True)
+
+        manifest = {
+            "schema_version": 1,
+            "experiment_id": new_id,
+            "config_hash": config_hash,
+            "code_hash": code_hash,
+            "config": config,
+            "environment": env,
+            "created_utc": datetime.now(timezone.utc).isoformat(),
+            "time_definition": (
+                "spawn to validated worker result; "
+                "excludes logging and cleanup"
+            ),
+            "memory_definition": (
+                "sampled sum of RSS of worker and descendants; "
+                "shared pages may be counted twice"
+            ),
+            "native_solve_definition": (
+                "adapter solve call, may include model export/presolve"
+            ),
+        }
+
+        with manifest_path.open("x", encoding="utf-8") as handle:
+            json.dump(
+                manifest,
+                handle,
+                ensure_ascii=False,
+                indent=2,
+            )
+
+    from src.utils.run_lock import run_lock
+
+    with run_lock(output / "run.lock"):
+        logger = ResultLogger(output, resume=args.resume)
+
+        finished = {
+            r["run_id"]
+            for r in logger.records
+            if r["status"] != "INTERRUPTED"
+        }
+
+        init_wandb(
+            run_name=manifest["experiment_id"],
+            enabled=args.wandb_offline,
+            output_dir=output,
+        )
+
+        try:
+            for index, job in enumerate(jobs, 1):
+                solver, encoding, n, repetition = job
+
+                key = (
+                    f"{config_hash}|{solver}|{encoding}|"
+                    f"{n}|{repetition}"
+                )
+                run_id = hashlib.sha256(
+                    key.encode()
+                ).hexdigest()[:24]
+
+                if run_id in finished:
+                    continue
+
+                print(
+                    f"[{index}/{len(jobs)}] "
+                    f"{solver} {encoding or 'Native_Model'} "
+                    f"N={n} run={repetition}",
+                    flush=True,
+                )
+
+                row = run_job(
+                    n=n,
+                    solver=solver,
+                    encoding=encoding,
+                    sat_solver=args.sat_solver,
+                    timeout=args.timeout,
+                    memory_limit_mib=args.memory_mib,
+                    threads=args.threads,
+                    seed=args.seed,
+                    column_alo=args.column_alo,
+                    batch_size=args.batch_size,
+                    sample_interval_ms=args.sample_ms,
+                    max_clauses=args.max_clauses,
+                    cpoptimizer=args.cpoptimizer,
+                )
+
+                row.update(
+                    experiment_id=manifest["experiment_id"],
+                    run_id=run_id,
+                    repetition=repetition,
+                    timestamp=datetime.now(timezone.utc).isoformat(),
+                    config_hash=config_hash,
+                    code_hash=code_hash,
+                )
+
+                logger.log(row)
+
+                total = row.get("total_s")
+                if total is not None:
+                    print(
+                        f"  {row['status']} "
+                        f"total={total:.4f}s "
+                        f"peak={row.get('peak_rss_mib')} MiB",
+                        flush=True,
+                    )
+                else:
+                    print(
+                        f"  {row['status']}: "
+                        f"{row.get('error_message', '')}",
+                        flush=True,
+                    )
+
+                if row["status"] == "ERROR":
+                    print(
+                        "  "
+                        + row.get(
+                            "error_message",
+                            "Unknown error",
+                        ),
+                        flush=True,
+                    )
+
+        except KeyboardInterrupt:
+            print(
+                "\nInterrupted. Completed jobs are saved; "
+                "repeat the command with --resume."
+            )
+            return 130
+
+        finally:
+            finish_wandb()
+            write_summary(
+                logger.records,
+                output / "summary.csv",
+            )
+
+    print(f"Saved results to: {output}")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    multiprocessing.freeze_support()
+    raise SystemExit(main())
