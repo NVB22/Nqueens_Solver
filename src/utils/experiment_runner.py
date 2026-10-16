@@ -1,3 +1,4 @@
+"""Run each job in a fresh spawn worker with an external time/RAM supervisor."""
 import math
 import multiprocessing as mp
 import os
@@ -77,7 +78,10 @@ def run_job(n, solver="sat", encoding="Binary", sat_solver="glucose3",
                   solution_valid=None, solution_cols=None, python_version=platform.python_version(),
                   peak_rss_mib=None, phase_timings_complete=False)
     if solver == "sat":
+        # Luôn tính số đếm để ghi kết quả, kể cả khi bỏ giới hạn clause.
         result.update(estimate_cnf(n, encoding, column_alo))
+        # max_clauses=0: không SKIPPED vì kích thước; vẫn khởi chạy worker.
+        # Chỉ giới hạn nếu người chạy chủ động truyền một giá trị dương.
         if max_clauses and result["cnf_clauses"] > max_clauses:
             result.update(status="SKIPPED", termination_reason="CLAUSE_LIMIT",
                           error_message=f"CNF has {result['cnf_clauses']} clauses; limit={max_clauses}",
