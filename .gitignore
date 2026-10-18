@@ -1,12 +1,23 @@
-# Môi trường ảo Python
-venv/
-
-# Cache hệ thống
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
 
-# Thư mục log của Weights & Biases
+# Môi trường ảo và log
+.venv/
+venv/
 wandb/
+run.lock
 
-# File dữ liệu cục bộ
-*.csv
+# Chỉ đưa đợt thực nghiệm dùng trong báo cáo lên GitHub
+/results/*
+!/results/experiment_02/
+
+# File tạm khi biên dịch LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk

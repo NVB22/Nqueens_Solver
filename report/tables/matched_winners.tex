@@ -1,0 +1,23 @@
+\begin{table}[pos=H]
+\centering
+\small
+\caption{Số kích thước có trung vị nhanh nhất trên tập chung.}
+\label{tab:matched_winners}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Phương pháp & Theo $T_{work}$ & Theo $T_{total}$ \\
+\midrule
+Binomial & 2 & 2 \\
+Binary & 0 & 4 \\
+Sequential & 1 & 1 \\
+Commander & 0 & 1 \\
+Product & 1 & 0 \\
+CP-SAT & 0 & 0 \\
+CPLEX CP & 4 & 0 \\
+CPLEX MIP & 0 & 0 \\
+Gurobi & 3 & 3 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\footnotesize Tập chung gồm 11 kích thước: 4, 8, 9, 16, 25, 27, 36, 49, 64, 81, 100. Mỗi kích thước có trọng số bằng nhau; không thay thế đánh giá mức độ hoàn tất.\end{minipage}
+\end{table}

@@ -1,0 +1,23 @@
+\section{Conclusion}
+\label{sec:conclusion}
+Báo cáo xây dựng mô hình SAT N-Queens bằng $N^2$ biến ô cờ, ALO/AMO trên hàng và cột, cùng AMO trên hai họ đường chéo. Năm mã hóa sử dụng cùng tập bố trí hậu hợp lệ nhưng khác cách tổ chức biến phụ và mệnh đề. Commander nhóm tối đa ba biến và Product tọa độ được áp dụng đệ quy; Sequential dùng chuỗi Sinz với ngưỡng Pairwise cho nhóm không quá ba biến. Những lựa chọn này được nêu bằng công thức, ví dụ, lập luận tính đúng và công thức đếm, thay vì chỉ dựa vào tên của họ encoding.
+
+Đợt thực nghiệm gồm 486 lượt trên 18 kích thước, tạo 385 nghiệm đã kiểm tra hợp lệ, 99 TIMEOUT và hai UNKNOWN. Không có lượt bị bỏ qua theo kích thước CNF. Theo tiêu chí hoàn tất đủ ba lần lặp, CPLEX CP đạt 18/18 kích thước, Gurobi 17/18, CPLEX MIP 16/18 và Binary 15/18. Binary có mức độ hoàn tất tốt nhất trong nhóm SAT hiện tại; Product hoàn tất 11/18 và thêm một lượt thành công tại $N=125$.
+
+Các kết quả trả lời những câu hỏi nghiên cứu theo ba hướng. Thứ nhất, số clause nhỏ hơn không bảo đảm tìm nghiệm nhanh hơn: Product tại $N=64$ có ít clause nhất nhưng lượng xung đột, lan truyền và thời gian solve lớn. Thứ hai, chi phí sinh/nạp có thể chi phối ở CNF lớn, trong khi khởi động/thiết lập chi phối total ở $N$ nhỏ; vì vậy cần báo cáo đồng thời work và total. Thứ ba, timeout phải được đọc cùng tiến độ: tại $N=1331$, có mã hóa đã nạp đủ CNF và có mã hóa chưa nạp đủ trước khi bị dừng.
+
+CPLEX CP cho kết quả tốt nhất về mức độ hoàn tất trong tập này, nhưng thực nghiệm đồng thời thay cả cách biểu diễn và backend. Kết luận chỉ áp dụng cho các bàn cờ trống, cấu hình và máy đã quan sát; không suy rộng thành thứ hạng chung giữa SAT, CP và ILP. Hướng phát triển phù hợp là thử thêm backend SAT, tăng số lần lặp có kiểm soát, đo riêng chế độ worker đã khởi động, và thiết kế phép đối chiếu từng thay đổi mã hóa dưới cùng điều kiện. Những mở rộng đó cần dữ liệu mới trước khi bổ sung kết luận về hiệu năng.
+
+\section*{Data Availability}
+Kho mã nguồn và kết quả: \RepositoryURL. Revision của bộ tái tạo: \RepositoryRevision.
+
+Bộ dữ liệu sử dụng có định danh \texttt{20261015T101136Z\_afe2720f}. Bốn đầu vào gồm \texttt{experiment\_results.csv}, \texttt{results.jsonl}, \texttt{manifest.json} và \texttt{summary.csv}, dự kiến công bố tại \path{results/experiment_02/} trong repository. Gói báo cáo giữ bản sao nguyên nội dung tại \texttt{data/}; riêng summary được đổi tên thành \texttt{summary\_runner.csv} để phân biệt với số liệu dẫn xuất.
+
+Mã hậu xử lý được tách trong \texttt{analysis/}: đọc/kiểm tra/thống kê tại \texttt{data\_processing.py}, xuất bảng tại \texttt{tables.py} và vẽ hình tại \texttt{plots.py}. Từ gốc repository, chạy \texttt{python -m analysis} với đầu vào \path{results/experiment_02} và đầu ra \texttt{report}. Lệnh đầy đủ và cách kiểm tra từng điểm được nêu tại Phụ lục~\ref{app:reproduce} và \texttt{HUONG\_DAN\_TAI\_TAO.md}. Hai mươi bốn bảng thực nghiệm và tám hình được tạo từ dữ liệu, không nhập số thủ công. Các bảng ký hiệu, công thức, môi trường và quy trình là phần mô tả trong LaTeX.
+
+Mỗi hình có bản PDF, PNG và CSV điểm dữ liệu tại \path{report/data/figure_points/}. \texttt{data\_audit.json} lưu kiểm tra và SHA-256 đầu vào. Gói LaTeX độc lập đóng kèm cùng module \texttt{analysis/}; \texttt{build\_report.py} chỉ là lệnh gọi tiện dụng từ dữ liệu đã đóng gói. \texttt{README\_VI.md} hướng dẫn biên dịch XeLaTeX; \texttt{metadata.tex} chứa thông tin tác giả và repository cần điền.
+
+Khi công bố, cần giữ snapshot hoặc commit triển khai solver đúng đợt thực nghiệm, ngoài mã hậu xử lý. \texttt{code\_hash} trong manifest là fingerprint của runner, không tự động là Git commit hash. Bộ tái tạo báo cáo không thay thế mã solver gốc. URL và revision đang để trống có đánh dấu; chưa thể coi yêu cầu liên kết repository là hoàn tất cho tới khi tác giả công bố và điền các trường này.
+
+\section*{Ghi nhận hỗ trợ biên soạn}
+ChatGPT hỗ trợ hệ thống hóa mô hình, tổng hợp dữ liệu và biên soạn LaTeX. Các số đo thực nghiệm do người thực hiện cung cấp; người thực hiện chịu trách nhiệm kiểm tra nội dung, đối chiếu với mã nguồn được nộp và hoàn thiện thông tin tái lập.

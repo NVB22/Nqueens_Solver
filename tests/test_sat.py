@@ -12,7 +12,7 @@ from src.encodings.product import generate_product_clauses
 
 
 SOLVER = "glucose3"
-TEST_SIZES = [4, 8]
+TEST_SIZES = [2 ,4, 8]
 
 def helper_run_encoding(encoding_func):
     """Hàm helper thuần túy kiểm tra logic cho một thuật toán bất kỳ"""

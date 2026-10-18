@@ -1,0 +1,5 @@
+# Do not reinstall an already-upgraded/full CPLEX runtime just to use this project.
+# CPLEX and CP Optimizer runtimes/licenses are installed separately.
+docplex>=2.32,<3
+gurobipy>=12,<14
+# Optional local W&B logs: python -m pip install wandb

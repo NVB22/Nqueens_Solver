@@ -1,0 +1,6 @@
+{
+  "python": "3.12.14",
+  "matplotlib": "3.10.8",
+  "numpy": "2.3.5",
+  "note": "Môi trường hậu xử lý, không phải môi trường chạy solver trong manifest."
+}

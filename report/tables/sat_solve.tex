@@ -1,0 +1,32 @@
+\begin{table}[pos=H]
+\centering
+\small
+\caption{Thời gian quanh lời gọi giải SAT (giây).}
+\label{tab:sat_solve}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+$N$ & Binomial & Binary & Sequential & Commander & Product \\
+\midrule
+4 & 0.000061 & 0.000085 & 0.000064 & 0.000079 & 0.000063 \\
+8 & 0.000265 & 0.000334 & 0.000212 & 0.000641 & 0.000670 \\
+9 & 0.000154 & 0.000459 & 0.000261 & 0.000557 & 0.000863 \\
+16 & 0.0178 & 0.0111 & 0.0110 & 0.0702 & 0.007254 \\
+25 & 0.005146 & 0.0139 & 0.0421 & 0.0209 & 0.0211 \\
+27 & 0.0163 & 0.007481 & 0.0906 & 0.0446 & 0.0832 \\
+36 & 0.008011 & 0.0567 & 0.1181 & 0.0870 & 0.0740 \\
+49 & 0.006487 & 0.1920 & 0.5517 & 0.0614 & 0.7420 \\
+64 & 0.0229 & 0.1026 & 3.839 & 0.2145 & 18.884 \\
+81 & 0.1186 & 0.1314 & 2.839 & 0.2276 & 3.541 \\
+100 & 0.0554 & 0.1014 & 4.554 & 1.158 & 17.169 \\
+125 & 0.0874 & 0.1873 & 16.062 & 2.650 & 1S+2TO \\
+216 & 1.237 & 0.4549 & TO & 2.818 & TO \\
+343 & TO & 2.300 & TO & TO & TO \\
+512 & TO & 66.373 & TO & TO & TO \\
+729 & TO & TO & TO & TO & TO \\
+1000 & TO & TO & TO & TO & TO \\
+1331 & TO & TO & TO & TO & TO \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\footnotesize Giá trị số: trung vị của ba lượt SAT có nghiệm hợp lệ. TO: ba TIMEOUT; 2TO+1U: hai TIMEOUT và một UNKNOWN; 1S+2TO: một SAT và hai TIMEOUT. Không thay lượt chưa hoàn tất bằng 0 hoặc 100 giây.\end{minipage}
+\end{table}

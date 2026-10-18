@@ -1,0 +1,23 @@
+\begin{table}[pos=H]
+\centering
+\small
+\caption{Mức độ hoàn tất của đợt thực nghiệm không giới hạn clause.}
+\label{tab:coverage}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Phương pháp & Đủ 3/3 & Có SAT & SAT & TO & UNK \\
+\midrule
+Binomial & 13/18 & 13/18 & 39 & 15 & 0 \\
+Binary & 15/18 & 15/18 & 45 & 9 & 0 \\
+Sequential & 12/18 & 12/18 & 36 & 18 & 0 \\
+Commander & 13/18 & 13/18 & 39 & 15 & 0 \\
+Product & 11/18 & 12/18 & 34 & 20 & 0 \\
+CP-SAT & 13/18 & 13/18 & 39 & 13 & 2 \\
+CPLEX CP & 18/18 & 18/18 & 54 & 0 & 0 \\
+CPLEX MIP & 16/18 & 16/18 & 48 & 6 & 0 \\
+Gurobi & 17/18 & 17/18 & 51 & 3 & 0 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\footnotesize Hai cột tỷ lệ đếm kích thước; ba cột cuối đếm lượt. Mỗi phương pháp được thử đủ 54 lượt; không có SKIPPED, MEM\_LIMIT hoặc ERROR.\end{minipage}
+\end{table}

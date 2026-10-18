@@ -1,0 +1,17 @@
+\begin{table}[pos=H]
+\centering
+\small
+\caption{Kích thước mô hình CP và MIP ở giao diện người dùng.}
+\label{tab:native_size}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+$N$ & Biến CP & AllDifferent & Biến MIP & Ràng buộc MIP \\
+\midrule
+4 & 4 & 3 & 16 & 22 \\
+216 & 216 & 3 & 46\,656 & 1\,294 \\
+1331 & 1331 & 3 & 1\,771\,561 & 7\,984 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\footnotesize Không quy đổi biến nguyên hoặc ràng buộc mức cao thành biến/clause CNF. Không phải số lượng bên trong solver sau presolve.\end{minipage}
+\end{table}
