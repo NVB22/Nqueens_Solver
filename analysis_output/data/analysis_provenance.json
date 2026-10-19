@@ -1,0 +1,21 @@
+{
+  "analysis_schema_version": 2,
+  "experiment_id": "20261015T101136Z_afe2720f",
+  "input_sha256": {
+    "experiment_results.csv": "2498eb917ba8f668eed0e63c00af35d43bf33032be4179f1fd15dca571e830ce",
+    "results.jsonl": "ebb2e62bb156a5facd830d574e573883f6543e9a19546cd17dd06de3583a6505",
+    "manifest.json": "75060c4e937339e97c2f68f0360f602c9614f0e6282b0e3b426f0770c796cacf",
+    "summary_runner.csv": "cc27040a5c6aea7f0a687d94a1ef4d3327ba10e807441e6b2aa2ffdd75a150f6"
+  },
+  "analysis_sha256": {
+    "__init__.py": "52914c2bf2eee95f0468863d30c8a1e06cf4f258c2405babe2a96062d78b13b8",
+    "__main__.py": "d4ff6f27aa7742db0d36a4af384ca4d7510a6388c483c8640343944bb5e3b3f3",
+    "data_processing.py": "fe5ac82087d7663e45a9d3a681fb0444c034959d4964c0fd4d1d1b5c54f62c86",
+    "measurements.py": "83a8de2044329bcf2598944138ec44bc689919cf89aa44ee9b0b2c66249fbfd1",
+    "plots.py": "ac3e44f94d00761b2138c2dcbdb5a316fe1203b9323a25af5c145349b08e793f",
+    "tables.py": "891ea5e47b8d33c2dfe75ff801c8baadfdb6daa7a2fbe68474ea86772d82e3f3"
+  },
+  "phase_policy": "median of recorded usable values; counts and quality retained",
+  "completion_comparison_policy": "only groups with 3 validated SAT runs",
+  "generates_latex": false
+}

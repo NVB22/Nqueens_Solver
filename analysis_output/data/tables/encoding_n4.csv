@@ -1,0 +1,6 @@
+﻿n,method,primary_vars,aux_vars,total_vars,cnf_clauses,cnf_literals
+4,Binomial,16,0,16,84,184
+4,Binary,16,32,48,120,256
+4,Sequential,16,30,46,104,224
+4,Commander,16,20,36,124,284
+4,Product,16,0,16,84,184

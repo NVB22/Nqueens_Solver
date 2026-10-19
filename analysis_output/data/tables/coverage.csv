@@ -1,0 +1,10 @@
+﻿method,label,solved_all,solved_any,total_sizes,sat_runs,timeout_runs,unknown_runs
+Binomial,Binomial,13,13,18,39,15,0
+Binary,Binary,15,15,18,45,9,0
+Sequential,Sequential,12,12,18,36,18,0
+Commander,Commander,13,13,18,39,15,0
+Product,Product,11,12,18,34,20,0
+cp_sat,CP-SAT,13,13,18,39,13,2
+cplex_cp,CPLEX CP,18,18,18,54,0,0
+cplex_mip,CPLEX MIP,16,16,18,48,6,0
+gurobi,Gurobi,17,17,18,51,3,0

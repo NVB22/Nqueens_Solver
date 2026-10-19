@@ -1,0 +1,5 @@
+﻿method,matched,wins,losses,geometric_speedup
+Binary,13,9,4,1.7620350344509899
+Sequential,12,2,10,0.534209132763992
+Commander,13,6,7,1.1452758341434868
+Product,11,1,10,0.4264370918159363

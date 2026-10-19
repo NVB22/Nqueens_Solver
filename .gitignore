@@ -21,3 +21,9 @@ run.lock
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+
+/report/
+venv/
+__pycache__/
+*.pyc
+run.lock

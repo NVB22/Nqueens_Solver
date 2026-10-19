@@ -1,0 +1,10 @@
+﻿method,label,common_sizes,work_wins,total_wins
+Binomial,Binomial,11,2,2
+Binary,Binary,11,0,4
+Sequential,Sequential,11,1,1
+Commander,Commander,11,0,1
+Product,Product,11,1,0
+cp_sat,CP-SAT,11,0,0
+cplex_cp,CPLEX CP,11,4,0
+cplex_mip,CPLEX MIP,11,0,0
+gurobi,Gurobi,11,3,3

@@ -11,6 +11,7 @@ from statistics import median, quantiles, geometric_mean
 import csv
 import hashlib
 import json
+from .measurements import OBSERVED_FIELDS, summarize_measurement, measurement_rows, phase_summary_rows
 
 SAT = ["Binomial", "Binary", "Sequential", "Commander", "Product"]
 NATIVE = ["cp_sat", "cplex_cp", "cplex_mip", "gurobi"]
@@ -82,7 +83,7 @@ def counts(n, encoding, column_alo=True):
 
 
 def find_input(folder, names):
-    """Chấp nhận tên tệp trên máy người dùng hoặc tên trong gói LaTeX."""
+    """Chấp nhận tên tệp gốc của runner hoặc tên bản dữ liệu đã xuất."""
     matches = [folder / name for name in names if (folder / name).is_file()]
     require(len(matches) == 1,
             f"Cần đúng một tệp trong {names} tại {folder}; thấy {len(matches)} tệp.")
@@ -174,6 +175,14 @@ def summarize_group(n, method, rows):
     for field in ["primary_vars", "aux_vars", "cnf_clauses", "cnf_literals", "native_vars", "native_constraints"]:
         result[field] = rows[0].get(field)
     result["total_sat_vars"] = result["primary_vars"] + result["aux_vars"] if method in SAT else None
+    # Giữ các median_* cũ cho phép so sánh 3/3 SAT và các hình hiện có.
+    # Các cột observed_* mới độc lập với kết quả SAT/TIMEOUT/UNKNOWN.
+    for field in OBSERVED_FIELDS:
+        measurement = summarize_measurement(rows, field)
+        prefix = field.removesuffix("_s")
+        result["observed_median_" + field] = measurement["median_s"]
+        for key in ["runs_used", "final_runs", "last_update_runs", "quality"]:
+            result[prefix + "_" + key] = measurement[key]
     return result
 
 
@@ -296,5 +305,18 @@ def export_data(report, output_dir):
     write_csv(target / "cnf_formula_counts.csv", formulas)
     write_csv(target / "coverage.csv", report["coverage"])
     write_csv(target / "pairwise_binomial.csv", report["pairs"])
+    write_csv(target / "phase_measurements.csv", measurement_rows(report))
+    write_csv(target / "phase_summary.csv", phase_summary_rows(report))
     target.mkdir(parents=True, exist_ok=True)
     (target / "data_audit.json").write_text(json.dumps(report["audit"], ensure_ascii=False, indent=2), encoding="utf-8")
+    provenance = dict(
+        analysis_schema_version=2,
+        experiment_id=report["manifest"]["experiment_id"],
+        input_sha256=report["audit"]["raw_sha256"],
+        analysis_sha256={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                         for p in sorted(Path(__file__).parent.glob("*.py"))},
+        phase_policy="median of recorded usable values; counts and quality retained",
+        completion_comparison_policy="only groups with 3 validated SAT runs",
+        generates_latex=False,
+    )
+    (target / "analysis_provenance.json").write_text(json.dumps(provenance, ensure_ascii=False, indent=2), encoding="utf-8")

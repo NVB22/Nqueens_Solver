@@ -1,0 +1,27 @@
+﻿file,table_in_previous_pdf,title,unit,policy
+tables/coverage.csv,7,Mức độ hoàn tất,,solved_all/solved_any đếm kích thước; *_runs đếm lượt.
+tables/sat_work.csv,10,"Thời gian sinh + nạp + giải, nhóm đủ 3 SAT",s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/sat_total.csv,11,Thời gian toàn lượt đến khi kết thúc hoặc bị dừng,s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/sat_build.csv,25,Thời gian sinh CNF đã ghi nhận,s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/sat_load.csv,26,Thời gian nạp CNF đã ghi nhận,s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/sat_solve.csv,27,Thời gian quanh lời gọi giải SAT đã ghi nhận,s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/native_work.csv,16,"Thời gian xây mô hình + gọi giải, nhóm đủ 3 SAT",s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/native_total.csv,17,Thời gian toàn lượt CP/ILP đến khi kết thúc hoặc bị dừng,s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/native_build.csv,28,Thời gian xây mô hình CP/ILP đã ghi nhận,s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/native_solve.csv,29,Thời gian quanh lời gọi giải CP/ILP đã ghi nhận,s,Đọc cột *_info: số lượt có số đo/tổng lượt; chất lượng phép đo; trạng thái nhóm. Ô rỗng không phải 0 hay TIMEOUT của pha. Total bao gồm thời gian đến khi dừng. Work chỉ công bố trung vị khi đủ 3/3 SAT.
+tables/variables.csv,8,Kích thước CNF đầy đủ: total_vars,count,"Đếm theo công thức trước tiền xử lý, không gồm clause học; TIMEOUT không đổi số đếm."
+tables/clauses.csv,9,Kích thước CNF đầy đủ: cnf_clauses,count,"Đếm theo công thức trước tiền xử lý, không gồm clause học; TIMEOUT không đổi số đếm."
+tables/sat_ram.csv,20,Trung vị đỉnh RSS quan sát của cả ba lượt,MiB,Bao gồm lượt bị ngắt; không phải RAM cần để mọi phương pháp giải thành công.
+tables/native_ram.csv,21,Trung vị đỉnh RSS quan sát của cả ba lượt,MiB,Bao gồm lượt bị ngắt; không phải RAM cần để mọi phương pháp giải thành công.
+tables/statuses.csv,,Trạng thái nhóm ba lượt,,SAT: 3 SAT; TO: 3 TIMEOUT; 2TO+1U; 1S+2TO.
+tables/small_n.csv,14,Thời gian thành phần tại N=4,ms,"Solve đã nằm trong Work. Các cột là trung vị riêng, không cộng chúng thành Total."
+tables/phase_216.csv,15,Các số đo tại N=216,s,"Build/Load/Solve giữ số đo có thật, kể cả khi cả lượt TIMEOUT. Work yêu cầu 3 SAT. last_update chưa xác nhận số đo cuối, kể cả khi đã nạp đủ CNF."
+tables/counterexample.csv,13,Kích thước và công việc tìm kiếm tại N=64,,Bộ đếm giống nhau giữa 3 lượt; thời gian là trung vị 3 lượt.
+tables/pairwise_binomial.csv,12,So sánh Work với Binomial trên tập chung đủ 3 SAT,,geometric_speedup > 1 nghĩa là nhanh hơn Binomial; tập so sánh khác nhau giữa các hàng.
+tables/matched_winners.csv,18,Số kích thước có trung vị nhanh nhất trên tập mọi phương pháp đủ 3 SAT,,"Tập chung: 4, 8, 9, 16, 25, 27, 36, 49, 64, 81, 100"
+tables/native_size.csv,19,Kích thước mô hình native tại giao diện,count,Không phải kích thước bên trong solver sau presolve; không quy AllDifferent thành một clause.
+tables/partial_product.csv,22,Từng lượt Product tại N=125,s;MiB,Không dùng một lượt SAT làm đại diện cho trung vị hoàn tất của ba lượt.
+tables/timeout_progress.csv,23,Tiến độ nạp của lượt SAT bị TIMEOUT,runs,Tiến độ là bản cập nhật cuối; nạp đủ không chứng minh phép đo thời gian đã hoàn tất.
+tables/progress_1331.csv,24,CNF đầy đủ và tiến độ nạp tại N=1331,clauses,
+tables/dispersion.csv,30,Độ phân tán Work trên nhóm đủ 3 SAT,s;%,Q1/Q3 nội suy inclusive; IQR không phải khoảng tin cậy.
+tables/encoding_n4.csv,3,Đối chiếu kích thước CNF tại N=4,count,

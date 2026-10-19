@@ -1,0 +1,4 @@
+﻿n,method,repetition,run_id,status,peak_rss_mib,build_s,build_s_quality,load_s,load_s_quality,solve_s,solve_s_quality,total_s,total_s_quality
+125,Product,1,7e3bde8886aee3a9b44770a8,SAT,185.1328125,0.08644189999176888,final,0.18270760001178132,final,91.74757129999489,final,92.94240300000092,elapsed
+125,Product,2,c43db2273ed205aaf8d48bba,TIMEOUT,138.4453125,0.07420260000799317,last_update,0.15984739998384612,last_update,,unavailable,100.02738590000081,elapsed
+125,Product,3,ef35644d7783a455082bef1c,TIMEOUT,154.84375,0.07543840000289492,last_update,0.1525342999957502,last_update,,unavailable,100.01923009999882,elapsed
